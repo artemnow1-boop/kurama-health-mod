@@ -1,0 +1,57 @@
+package hw.kurama.kuramahealthindicator.client.config;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class KuramaConfig {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "kuramahealthindicator.json");
+    private static KuramaConfig instance;
+
+    public float xPercent = 0.5f;
+    public float yPercent = 0.45f;
+    public float scale = 1.0f;
+    public int color = 0xFF5555;
+    public boolean showAlways = false;
+    public int timeoutMs = 10000;
+
+    public static KuramaConfig getInstance() {
+        if (instance == null) {
+            load();
+        }
+        return instance;
+    }
+
+    public static void load() {
+        if (CONFIG_FILE.exists()) {
+            try (FileReader reader = new FileReader(CONFIG_FILE)) {
+                instance = GSON.fromJson(reader, KuramaConfig.class);
+                if (instance == null) {
+                    instance = new KuramaConfig();
+                }
+            } catch (IOException e) {
+                instance = new KuramaConfig();
+            }
+        } else {
+            instance = new KuramaConfig();
+            save();
+        }
+    }
+
+    public static void save() {
+        if (instance == null) {
+            instance = new KuramaConfig();
+        }
+        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+            GSON.toJson(instance, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
